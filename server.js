@@ -3,6 +3,8 @@ require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const rowdy = require('rowdy-logger')
+const openai = require('openai')
+
 
 // config express app
 const app = express()
@@ -14,6 +16,8 @@ app.use(cors())
 // request body parsing
 app.use(express.json())
 
+openai.api_key = process.env.OPENAI_API_KEY
+
 // GET / -- test index route
 app.get('/', (req, res) => {
     res.json({ msg: 'hello backend 🤖' })
@@ -21,6 +25,8 @@ app.get('/', (req, res) => {
 
 // controllers
 app.use('/api-v1/users', require('./controllers/api-v1/users.js'))
+app.use('/api-v1/recommendations', require('./controllers/api-v1/recommendations.js'))
+app.use('/api-v1/festivals', require('./controllers/api-v1/festivals.js'))
 
 // hey listen
 app.listen(PORT, () => {
