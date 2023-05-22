@@ -22,7 +22,7 @@ openai.api_key = process.env.OPENAI_API_KEY
 app.get('/', (req, res) => {
     res.json({ msg: 'hello backend 🤖' })
 })
-
+console.log(process.env.API_KEY)
 // controllers
 app.use('/api-v1/users', require('./controllers/api-v1/users.js'))
 app.use('/api-v1/recommendations', require('./controllers/api-v1/recommendations.js'))

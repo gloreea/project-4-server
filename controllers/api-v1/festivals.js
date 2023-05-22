@@ -5,8 +5,7 @@ const axios = require('axios')
 // GET /api-v1/festivals
 router.get('/', async (req, res) => {
   try {
-    // Perform the necessary logic to fetch festival/event data
-    const response = await axios.get('https://app.ticketmaster.com/discovery/v2/events.json', {
+    const response = await axios.get('https://app.ticketmaster.com/discovery/v2/events.json/', {
       params: {
         apikey: process.env.API_KEY,
         keyword: 'music festival',
@@ -15,8 +14,9 @@ router.get('/', async (req, res) => {
     const festivals = response.data;
 
     res.json(festivals)
+    console.log(process.env.API_KEY)
   } catch (error) {
-    console.error(error)
+    console.log(error)
     res.status(500).json({ error: 'Failed to fetch festivals' })
   }
 })
