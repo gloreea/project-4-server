@@ -8,6 +8,7 @@ const authLockedRoute = async (req, res, next) => {
         const authHeader = req.headers.authorization
         // will throw to catch if jwt can't be verified
         const decode = jwt.verify(authHeader, process.env.JWT_SECRET)
+       console.log(authHeader)
         // find user from db
         const foundUser = await db.User.findById(decode._id)
         // mount user on locals
@@ -20,5 +21,4 @@ const authLockedRoute = async (req, res, next) => {
         res.status(401).json({ msg: 'auth failed' })
     }
 }
-
 module.exports = authLockedRoute

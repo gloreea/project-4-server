@@ -6,6 +6,7 @@ const rowdy = require('rowdy-logger')
 const openai = require('openai')
 
 
+
 // config express app
 const app = express()
 const PORT = process.env.PORT || 8000
