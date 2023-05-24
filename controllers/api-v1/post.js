@@ -3,6 +3,7 @@ const express = require('express')
 const router = express.Router()
 const axios = require('axios')
 const authLockedRoute = require("./authLockedRoute")
+const Comment = require("../../models/Comment")
 
 router.get('/', authLockedRoute, async (req, res) => {
     try {
@@ -86,6 +87,116 @@ router.post('/', authLockedRoute, async (req, res) => {
         } catch (error) {
           console.log(error)
           res.status(500).json({ error: 'Failed to delete post' })
+        }
+      })
+
+    router.get('/:postId/comments', authLockedRoute, async (req, res) => {
+        try {
+          const { postId } = req.params
+          const post = await Post.findById(postId)
+          if (!post) {
+            return res.status(404).json({ error: 'Post not found' })
+          }
+          // declare empty [], to store comment objects
+          const comments = []
+          // loop over post.comments in order to isolate one comment id
+          for( const commentId of post.comments ){
+            // use comment id to query db
+            const comment = await Comment.findById(commentId)
+            // save db query to object, then push object into empty []
+            comments.push(comment)
+            console.log(commentId)
+          }
+          // overwrite value of post.comments to be [] variable
+          post.comments = comments
+        //   const comment = await Comment.find({ postId })
+          res.json({ post })
+        //   res.json({  comments })
+          console.log(post)
+        } catch (error) {
+          console.log(error)
+          res.status(500).json({ error: 'Internal server error' })
+        }
+      })
+
+    router.post('/:postId/comments', authLockedRoute, async (req, res) => {
+        try {
+          const { postId } = req.params
+          const { content } = req.body
+          console.log( typeof req.body)
+          const post = await Post.findById(postId)
+      
+          if (!post) {
+            return res.status(404).json({ error: 'Post not found' })
+          }
+      
+          const comment = new Comment({
+            content,
+            userId: res.locals.user.id
+          })
+          console.log(comment)
+          await comment.save()
+         post.comments.push(comment)
+          await post.save()
+          res.status(201).json({ comment })
+        } catch (error) {
+          console.log(error);
+          res.status(500).json({ error: 'Failed to create comment' })
+        }
+      })
+      
+      // Update a comment
+      router.put('/:postId/comments/:commentId', authLockedRoute, async (req, res) => {
+        try {
+          const { postId, commentId } = req.params
+          const { content } = req.body
+      
+          const post = await Post.findById(postId)
+      
+          if (!post) {
+            return res.status(404).json({ error: 'Post not found' })
+          }
+      
+          const comment = post.comments.id(commentId)
+      
+          if (!comment) {
+            return res.status(404).json({ error: 'Comment not found' })
+          }
+      
+          comment.content = content
+          await post.save()
+      
+          res.json({ comment })
+        } catch (error) {
+          console.log(error)
+          res.status(500).json({ error: 'Failed to update comment' })
+        }
+      })
+      
+      // Delete a comment
+      router.delete('/:postId/comments/:commentId', authLockedRoute, async (req, res) => {
+        try {
+          const { postId, commentId } = req.params
+      
+          const post = await Post.findById(postId)
+      
+          if (!post) {
+            return res.status(404).json({ error: 'Post not found' })
+          }
+      
+          const comment = post.comments.id(commentId)
+      
+          if (!comment) {
+            return res.status(404).json({ error: 'Comment not found' })
+          }
+      
+          comment.remove()
+          await post.save()
+      
+          res.json({ message: 'Comment deleted successfully' })
+        } catch (error) {
+          console.log(error)
+          res.status(500).json({ error: 'Failed to delete comment' })
         }
       })
       
